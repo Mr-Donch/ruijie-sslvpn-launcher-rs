@@ -1,0 +1,54 @@
+# RuiJie SSLVPN Launcher RS 配置文件
+# 路径可以使用绝对路径，也可以使用相对路径。
+# 相对路径会以本配置文件所在目录为基准解析。
+
+# 瑞捷 SSLVPN 主程序路径。
+vpn_exe_path = 'C:\Program Files\RG-SSLVPN\RG-SSLVPN.exe'
+
+# SSLVPN 连接成功后通常会重写这个文件；本工具默认以它作为主触发信号。
+ext_route_path = 'C:\Program Files\RG-SSLVPN\ext_route'
+
+# SSLVPN 主日志目录；Rust CLI 当前只做诊断保留，不直接依赖日志触发。
+sslvpn_log_dir = 'C:\Program Files\RG-SSLVPN\log'
+
+# 瑞捷虚拟网卡/客户端日志；Rust CLI 当前只做诊断保留。
+client_log_path = 'C:\Program Files\RG SSL VPN Client\SslVpnWin.log'
+
+# DNS 修正脚本。默认指向本包 scripts 目录下的脚本。
+cleaner_script_path = "scripts/clear-ruijie-sslvpn-dns.ps1"
+
+# 目标 DNS。通用推荐 114.114.114.114；长期使用 Mihomo/Clash TUN 可改为 198.18.0.2。
+preferred_dns = ["114.114.114.114"]
+
+# 等待 SSLVPN 连接成功的最长时间。
+timeout_seconds = 120
+
+# 轮询 ext_route/网卡状态的间隔。
+poll_interval_ms = 500
+
+# 发现连接触发后，修 DNS 前等待一小段时间，避免和 SSLVPN 自己写 DNS 冲突。
+fix_delay_ms = 800
+
+# DNS 修正最大尝试次数。
+max_fix_attempts = 3
+
+# true：启动 SSLVPN；false：只监控已有 SSLVPN 会话。
+start_vpn = true
+
+# 默认关闭。开启后，即使 ext_route 未更新，只要网卡已连接且 DNS 不对，也尝试修正。
+allow_adapter_fallback = false
+
+# ext_route 更新但内容不明确时，是否询问人工确认。
+confirm_uncertain = true
+
+# 失败时暂停，避免双击运行时窗口一闪而过。
+pause_on_error = true
+
+# 成功时是否暂停。默认成功后直接退出。
+pause_on_success = false
+
+# 非管理员运行 run 时自动弹 UAC 提权。
+auto_elevate = true
+
+# Rust CLI 日志。相对路径基于配置文件所在目录。
+log_path = "log/ruijie-sslvpn-launcher-rs.log"

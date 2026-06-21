@@ -1,0 +1,5 @@
+/target
+/log
+/scripts/logs
+/dist/**/log
+/dist/**/scripts/logs
