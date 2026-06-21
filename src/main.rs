@@ -136,6 +136,38 @@ fn run(cli: &Cli) -> Result<()> {
 
     validate_config(&cfg)?;
 
+    if cfg.start_vpn && detect_existing_vpn_process(&cfg.vpn_process_name)? {
+        logger.info(&format!(
+            "detected existing SSLVPN process: {}",
+            cfg.vpn_process_name
+        ))?;
+        if !cli.yes
+            && !ask_yes_no(
+                &format!(
+                    "SSLVPN is already running (process: {}). Fix DNS now?",
+                    cfg.vpn_process_name
+                ),
+            )?
+        {
+            logger.info("user declined immediate DNS fix; exiting")?;
+            return Ok(());
+        }
+
+        logger.info("user confirmed immediate DNS fix")?;
+        if try_fix_dns(&cfg, &mut logger, cli.dry_run)? {
+            logger.info("completed successfully")?;
+            if cfg.pause_on_success {
+                pause("DNS fixed. Press Enter to exit...");
+            }
+        } else {
+            logger.warn("immediate DNS fix failed")?;
+            if cfg.pause_on_error {
+                pause("DNS fix failed. Press Enter to exit...");
+            }
+        }
+        return Ok(());
+    }
+
     if cfg.start_vpn {
         start_vpn(&cfg, &mut logger)?;
     } else {
@@ -310,6 +342,42 @@ fn start_vpn(cfg: &AppConfig, logger: &mut Logger) -> Result<()> {
         .with_context(|| format!("failed to start {}", cfg.vpn_exe_path.display()))?;
 
     Ok(())
+}
+
+fn detect_existing_vpn_process(process_name: &str) -> Result<bool> {
+    let name = process_name.trim();
+    if name.is_empty() {
+        return Ok(false);
+    }
+
+    let name = name.strip_suffix(".exe").unwrap_or(name);
+
+    let output = Command::new("powershell")
+        .args([
+            "-NoProfile",
+            "-ExecutionPolicy",
+            "Bypass",
+            "-Command",
+            &format!(
+                "(Get-Process -Name '{}' -ErrorAction SilentlyContinue | Measure-Object).Count",
+                name.replace('\'', "''")
+            ),
+        ])
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .output()
+        .context("failed to query existing VPN process")?;
+
+    if !output.status.success() {
+        return Ok(false);
+    }
+
+    let count = String::from_utf8_lossy(&output.stdout)
+        .trim()
+        .parse::<u32>()
+        .unwrap_or(0);
+
+    Ok(count > 0)
 }
 
 fn file_state(path: &Path) -> FileState {

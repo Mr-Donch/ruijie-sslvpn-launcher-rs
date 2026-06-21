@@ -5,6 +5,10 @@
 # 瑞捷 SSLVPN 主程序路径。
 vpn_exe_path = 'C:\Program Files\RG-SSLVPN\RG-SSLVPN.exe'
 
+# 用于检测 SSLVPN 是否已在运行的进程名。默认与 vpn_exe_path 的文件名一致。
+# 如果留空，则跳过进程检测。
+vpn_process_name = "RG-SSLVPN"
+
 # SSLVPN 连接成功后通常会重写这个文件；本工具默认以它作为主触发信号。
 ext_route_path = 'C:\Program Files\RG-SSLVPN\ext_route'
 

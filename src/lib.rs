@@ -5,6 +5,7 @@ use std::time::Duration;
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct AppConfig {
     pub vpn_exe_path: PathBuf,
+    pub vpn_process_name: String,
     pub ext_route_path: PathBuf,
     pub sslvpn_log_dir: PathBuf,
     pub client_log_path: PathBuf,
@@ -27,6 +28,7 @@ impl Default for AppConfig {
     fn default() -> Self {
         Self {
             vpn_exe_path: PathBuf::from(r"C:\Program Files\RG-SSLVPN\RG-SSLVPN.exe"),
+            vpn_process_name: "RG-SSLVPN".to_string(),
             ext_route_path: PathBuf::from(r"C:\Program Files\RG-SSLVPN\ext_route"),
             sslvpn_log_dir: PathBuf::from(r"C:\Program Files\RG-SSLVPN\log"),
             client_log_path: PathBuf::from(r"C:\Program Files\RG SSL VPN Client\SslVpnWin.log"),
@@ -179,6 +181,7 @@ mod tests {
         assert!(cfg.confirm_uncertain);
         assert!(cfg.auto_elevate);
         assert_eq!(cfg.timeout(), Duration::from_secs(120));
+        assert_eq!(cfg.vpn_process_name, "RG-SSLVPN");
         assert_eq!(
             cfg.cleaner_script_path,
             PathBuf::from("scripts/clear-ruijie-sslvpn-dns.ps1")
