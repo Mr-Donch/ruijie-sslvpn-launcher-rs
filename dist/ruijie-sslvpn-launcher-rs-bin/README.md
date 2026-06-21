@@ -54,6 +54,8 @@ target\debug\ruijie-sslvpn-launcher-rs.exe
 ```
 
 If it is not already administrator, Windows will show a UAC prompt.
+Release builds request administrator privileges before the process starts.
+Debug builds keep the runtime auto-elevation path so tests can run without UAC.
 
 ## Scripts
 
