@@ -117,22 +117,22 @@ fn run(cli: &Cli) -> Result<()> {
     let mut cfg = load_or_default_config(&cli.config)?;
     cfg.resolve_paths(&config_base_dir);
     apply_overrides(&mut cfg, cli);
-    let mut logger = Logger::new(&cfg.log_path)?;
-
-    logger.info("launcher started")?;
-    logger.info(&format!("config path: {}", cli.config.display()))?;
-    logger.info(&format!("preferred dns: {}", cfg.preferred_dns.join(",")))?;
 
     if !is_elevated()? {
         if cfg.auto_elevate && !cli.no_elevate {
-            logger.info("not elevated; requesting administrator privileges via UAC")?;
+            println!("Requesting administrator privileges via UAC...");
             relaunch_elevated()?;
-            logger.info("elevation request started; exiting unelevated process")?;
             return Ok(());
         }
 
         bail!("Run as administrator. DNS changes require elevated privileges.");
     }
+
+    let mut logger = Logger::new(&cfg.log_path)?;
+
+    logger.info("launcher started")?;
+    logger.info(&format!("config path: {}", cli.config.display()))?;
+    logger.info(&format!("preferred dns: {}", cfg.preferred_dns.join(",")))?;
 
     validate_config(&cfg)?;
 
